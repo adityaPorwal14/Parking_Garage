@@ -2065,3 +2065,57 @@ Created 5 files, ran a command
 Now the entry point that wires the auth screen to the app screen:
 
 Created 3 files
+
+
+
+<!doctype html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Gantry — Attendant Console</title> <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" c
+
+PASTED
+
+add these two more functionalities into this app without changes in existing app functionality add more into this web app 
+
+Twists for this problem
+
+Level 1 — T4 (messy data): import a messy rate card (per spot type) with the junk below and price correctly from the cleaned rates.
+Level 2 — T2 (automation): “A nightly job auto-closes and bills any session parked over 24 h.” Graded via POST /clock.
+Level 3 — T6 (lifecycle): “Transfer an open session to a different plate (valet hand-off); spot and entry time carry over.”
+
+I'll add all three features on top of the existing console without touching what already works.
+
+Gantry — Attendant Console
+Artifact·Only you 
+
+Everything that was there before still works the same way — same login, floor map, check-in/out, search, history, settings. Three things are new.
+
+Rate card import (Settings → Import a rate card). Rates are now per spot type, with the old single rate kept as the house fallback for any type the card doesn't cover. "Load a messy card" drops in a realistic export: mixed comma/semicolon/pipe delimiters, $/USD symbols, stray quotes, E.V./cmpct/Std spellings, a blank ,,, row, # and // comments, a TBD amount, a motorbike row and duplicate lines. "Clean and preview" shows what survived, what was dropped and why, and which lines conflicted; "Apply cleaned rates" prices from the cleaned figures. Tested against that sample it lands EV 12/6.50/40, Compact 8/4/28, Standard 10/5/35 and rejects the two junk rows.
+
+Nightly auto-close (clock icon in the header). Sessions past 24 h get closed and billed by a sweep. POST /clock is wired up — fetch("/clock", {method:"POST", body: JSON.stringify({advance_hours: 26})}) works in-page, as does {now: "..."} or {reset: true}, and the sweep runs immediately after each clock change. The whole app reads that clock, so fees and elapsed times stay consistent. Limit, run hour and whether to bill to the job's run time or to the 24 h mark are all configurable, and there's a log of what was closed. /nightly/run, /transfer, /sessions, /rates, /rates/import are there too.
+
+Transfer (new tab beside Check out). Hands an open ticket to a new plate: same ticket ID, same spot, same entry time. It blocks transfers onto a plate that already has an open session, keeps a plate trail on the ticket, and the old plate still finds the ticket in search and history, where it's marked XFER (auto-closed ones are marked AUTO).
+
+Level 1 — T4 (messy data): import a messy rate card (per spot type) with the junk below and price correctly from the cleaned rates.
+
+have you add this feature into the existing app if not so pls add and give me the full code again with new features.
+
+Preparing to share the complete updated code file.
+
+Yes — T4 is already in the build I published. It lives in the Settings modal under "Import a rate card", backed by these functions in the script: SAMPLE_CARD, TYPE_ALIASES / canonType(), cleanMoney(), splitCells(), headerMap(), parseRateCard() and applyParsedCard(), plus rateFor() / rateSource() which make calculateFee() price per spot type from the cleaned card instead of the single house rate.
+
+What it handles, all in the "Load a messy card" sample:
+
+Junk in the card	What the cleaner does
+spot type , first hour , each additional hr , daily cap	detected as a header, columns mapped by name
+# … and // legacy row	ignored as comments
+blank lines and ,,,	ignored
+COMPACT;8;4;28, "standard" | 10.00 | 5 | 35.00	semicolon/pipe/tab delimiters auto-detected
+"$12.00", USD 35, $6.50	quotes, currency words and symbols stripped
+E.V., cmpct, Std	mapped to EV / COMPACT / STANDARD
+STANDARD , TBD , 5 , 35	rejected, reason shown
+motorbike, 4, 2, 15	rejected — not a spot type this garage uses
+duplicate EV / COMPACT / STANDARD rows	flagged; last valid row wins
+
+Running the sample through it yields EV $12 / $6.50 / $40, Compact $8 / $4 / $28, Standard $10 / $5 / $35, and a check-in on an EV spot then bills at the EV row, with the rate shown on the receipt.
+
+Here's the complete file to download or copy:
+
+The full source is in the file above (same code as the live link from my last message — nothing has changed since). To see T4 in action: log in, open Settings, click Load a messy card, then Clean and preview to see the accepted/rejected/warning breakdown, then Apply cleaned rates. The availability strip and the "Rates in force, by spot type" table will both show the imported figures tagged as CARD.
