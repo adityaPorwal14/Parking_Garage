@@ -40,3 +40,8 @@ Rem Hours   = Total Hours % 24
 
 Partial Day Fee = First Hour Rate + (Rem Hours - 1) * Additional Hour Rate
 Final Fee       = (Full Days * Daily Cap) + min(Partial Day Fee, Daily Cap)
+
+## 4. Spot Allocation Hierarchy
+EV       --> EV Spot Only
+Compact  --> Compact Spot  --> (Fallback) Standard Spot
+Standard --> Standard Spot
