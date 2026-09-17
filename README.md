@@ -31,9 +31,6 @@ git clone [https://github.com/adityaPorwal14/Parking_Garage]
 ---
 
 ###2. Setup Environment
-# Clone repository
-git clone [https://github.com/your-username/parking-garage-system.git](https://github.com/your-username/parking-garage-system.git)
-cd parking-garage-system
 
 # Create and activate virtual environment
 python3 -m venv venv
