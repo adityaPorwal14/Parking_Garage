@@ -30,7 +30,7 @@ git clone [https://github.com/adityaPorwal14/Parking_Garage]
 
 ---
 
-###2. Setup Environment
+2. Setup Environment
 
 # Create and activate virtual environment
 python3 -m venv venv
